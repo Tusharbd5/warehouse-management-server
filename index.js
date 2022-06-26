@@ -18,12 +18,20 @@ async function run() {
         await client.connect();
         const itemsCollection = client.db('warehouseDb').collection('item');
 
+        // Getting all data from database
         app.get('/product', async (req, res) => {
             const query = {};
             const cursor = itemsCollection.find(query);
             const product = await cursor.toArray();
             res.send(product);
         });
+
+        // Insert one data to database
+        app.post('/product', async (req, res) => {
+            const newProduct = req.body;
+            const result = await itemsCollection.insertOne(newProduct);
+            res.send(result);
+        })
 
         // Finding products by id
         app.get('/product/:id', async (req, res) => {
@@ -45,6 +53,14 @@ async function run() {
                 }
             };
             const result = await itemsCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        });
+
+        // Deleting a product
+        app.delete('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await itemsCollection.deleteOne(query);
             res.send(result);
         })
 
