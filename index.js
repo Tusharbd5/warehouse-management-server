@@ -17,6 +17,7 @@ async function run() {
     try {
         await client.connect();
         const itemsCollection = client.db('warehouseDb').collection('item');
+        const userEntry = client.db('warehouseDb').collection('user_entry');
 
         // Getting all data from database
         app.get('/product', async (req, res) => {
@@ -61,6 +62,21 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await itemsCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // User entry collection
+        app.get('/user-entry', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const cursor = userEntry.find(query);
+            const entry = await cursor.toArray();
+            res.send(entry);
+        })
+
+        app.post('/user-entry', async (req, res) => {
+            const entry = req.body;
+            const result = await userEntry.insertOne(entry);
             res.send(result);
         })
 
